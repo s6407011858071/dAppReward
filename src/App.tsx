@@ -14,7 +14,7 @@ function App() {
     return (
         <div className="max-w-sm mx-auto">
             <Routes>
-                <Route path="/" element={<Layout/>}>
+                <Route path="/*" element={<Layout/>}>
                     <Route index path="card" element={<Card/>}/>
                     <Route path="coupon" element={<Coupon/>}/>
                     <Route path="claims" element={<Claims/>}/>
