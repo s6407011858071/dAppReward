@@ -5,11 +5,56 @@ body {
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
-.membership-card-v1{
-    background: #7F00FF;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #E100FF, #7F00FF);  /* Chrome 10-25, Safari 5.1-6 */
+.membership-card-wisdom {
+    background: #7F00FF; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #E100FF, #7F00FF); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #E100FF, #7F00FF); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
+
+.home-section-1-bg {
+    background: #7F00FF; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to top,#ffffff, #E100FF, #7F00FF); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to top, #ffffff,#E100FF, #7F00FF); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
+
+
+
+
+.membership-card-gold {
+
+    background: #f7971e; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #f7971e, #ffd200); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #f7971e, #ffd200); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+
+}
+
+.membership-card-silver {
+
+
+    background: #3e5151; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #3e5151, #decba4); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #3e5151, #decba4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.membership-card-member {
+
+
+    background: #16222A;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #3A6073, #16222A);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #3A6073, #16222A); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
+
+
+.login-bg {
+    background: #7F00FF; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #E100FF, #7F00FF); /* Chrome 10-25, Safari 5.1-6 */
     background: linear-gradient(to right, #E100FF, #7F00FF); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
 }

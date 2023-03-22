@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
 import {Outlet, useLocation, Link} from 'react-router-dom';
-import Card from "../Pages/Card";
+import {useAccount, useConnect, useDisconnect} from "wagmi";
+import {InjectedConnector} from 'wagmi/connectors/injected'
 
 
 const ActiveLink = (props: React.PropsWithChildren<{ to: string }>) => {
@@ -21,12 +22,15 @@ const ActiveLink = (props: React.PropsWithChildren<{ to: string }>) => {
 export default function () {
 
 
+    const {isConnected} = useAccount()
+
+
     // @ts-ignore
     return (
         <div className="drawer">
             <input id="my-drawer-3" type="checkbox" className="drawer-toggle"/>
             <div className="drawer-content flex flex-col">
-                <div className="sticky top-0 z-50 bg-white">
+                <div className="sticky top-0 z-50 bg-white shadow-2xl">
                     <div className="w-full navbar ">
                         {/*<div className="flex-none lg:hidden">*/}
                         {/*    <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">*/}
@@ -37,8 +41,14 @@ export default function () {
                         {/*        </svg>*/}
                         {/*    </label>*/}
                         {/*</div>*/}
-                        <div className="flex-1  mx-2 tracking-wide font-bold text-[25px]"><span
-                            className=" text-secondary">Reward.</span><span className="text-primary">xStore</span></div>
+                        <div className=" flex flex-row items-center  tracking-wide font-bold text-lg w-full">
+                            <div className="flex-grow">
+                                <span className="text-secondary">Reward</span>
+                                {/*<span className="text-primary">Membership</span>*/}
+                            </div>
+                            <ConnectWalletButton/>
+
+                        </div>
                         <div className="flex-none hidden lg:block">
                             {/*<ul className="menu menu-horizontal">*/}
                             {/*    <li><a>Navbar Item 1</a></li>*/}
@@ -47,17 +57,20 @@ export default function () {
                         </div>
 
                     </div>
-                    <div className="flex flex-row gap-[20px] text-[13px] font-bold pl-[18px] tracking-wider">
-                        <ActiveLink to="/card">
-                            Card
-                        </ActiveLink>
-                        <ActiveLink to="/coupon">
-                            Coupon
-                        </ActiveLink>
-                        <ActiveLink to="/claims">Claims</ActiveLink>
-                    </div>
+                    {isConnected && (
+                        <div className="flex flex-row gap-[20px] text-[13px] font-bold pl-[18px] tracking-wider mb-2">
+                            <ActiveLink to="/card">
+                                Card
+                            </ActiveLink>
+                            {/*<ActiveLink to="/coupon">*/}
+                            {/*    Coupon*/}
+                            {/*</ActiveLink>*/}
+                            <ActiveLink to="/claims">Claims</ActiveLink>
+                        </div>
+                    )}
+
                 </div>
-                <div>
+                <div className="mb-10">
                     <Outlet/>
 
                 </div>
@@ -75,3 +88,32 @@ export default function () {
         </div>
     )
 }
+
+const ConnectWalletButton = () => {
+
+    const {isConnected, address} = useAccount()
+    const {connect,} = useConnect({
+        connector: new InjectedConnector(),
+    })
+    const {disconnect} = useDisconnect()
+
+
+    return (
+
+        <div
+            onClick={() => {
+                if (isConnected) {
+                    disconnect()
+                } else {
+                    connect()
+                }
+            }}
+            className="bg-primary text-white rounded-md p-1
+                cursor-pointer hover:opacity-75 text-xs
+                truncate max-w-[120px]">
+            {isConnected ? `${address?.slice(0,3)}...${address?.slice(-4)}` : "Connect Wallet"}
+        </div>
+    )
+}
+
+

@@ -1,58 +1,110 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
+import MembershipCard, {Tier} from "../MembershipCard";
+import {useAccount, useBalance, useContractRead, useSigner} from "wagmi";
+import config from "../../config";
+import tierABI from "../../abi/Tier.json"
+import {BigNumber} from "ethers";
+import {gql, useQuery} from "@apollo/client";
+import Numeral from "numeral";
+import dayjs from "dayjs";
 
-const MembershipCard = () => {
-    return (
-        <div className="card membership-card-v1 mt-[20px] h-[190px] shadow-xl p-[20px]">
-            <div className="text-white tracking-normal text-[22px] font-bold pt-[1px]">
-                Platinum
-            </div>
-            <div className="text-white tracking-normal text-[12px] font-bold pt-[10px]">
-                Current balance
-            </div>
-            <div className="text-white font-semibold tracking-wide text-[25px] pt-[2px] ">
-                123,324.32 Points
-            </div>
-
-            <div className="text-white font-bold tracking-wider text-[10px] pt-[37px] ">
-                0xa6f79B60359f141df90A0C745125B131cAAfFD12
-            </div>
-        </div>);
-}
 
 const Transaction = () => {
+
+    const {address} = useAccount()
+
+    const GET_TRANSACTION_HISTORY = gql`
+      query TransactionHistory($address: String!) {
+          transfers(
+            where: {or: [{to: $address}, {from: $address}]}
+            orderBy: blockNumber
+            orderDirection:"desc"
+          ) {
+            id
+            transactionHash
+            from
+            to
+            blockTimestamp
+            value
+          }
+        }
+`;
+
+    const {loading, error, data} = useQuery(GET_TRANSACTION_HISTORY, {
+        initialFetchPolicy:"network-only",
+
+        pollInterval : 3000,
+        variables: {
+            address
+        }
+    });
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error : {error.message}</p>;
+
+    console.log("data", data.transfers)
+
     return <div>
-        <div className="mx-[10px] mt-[20px]">
-            <span className="text-[20px] font-bold">Transactions</span>
-        </div>
+
         <div className="">
-            <div className="m-3 p-3 flex flex-row justify-between">
-                <div className="flex flex-col">
-                    <span className="text-[20px] font-bold">Receive</span>
-                    <span className="text-[10px]">37 mins ago (Feb-11-2023 02:38:12 PM +UTC)</span>
-                    <div className="w-[250px]">
-                        <p className="text-[10px] truncate">0x23651e64a1da00e15bbbcdeee9e87f863c57a51de581a1a67ac737ac0907f9c4</p>
+
+            {data.transfers && data.transfers.map((t: any) => {
+
+                const txType = `${t.to}`.toUpperCase() === `${address}`.toUpperCase() ? "Receive" : "Transfer / Redeem";
+
+                const amount = BigNumber.from(t.value).div(BigNumber.from("10").pow(18)).toString();
+
+                const d = dayjs(new Date(t.blockTimestamp * 1000));
+
+                return (
+                    <div key={t.id} className="m-3 p-3 flex flex-row ">
+                        <div className="flex flex-col">
+                            <span className="text-[20px] font-bold">{txType}</span>
+                            <span className="text-sm font-bold "> {txType === "Receive" ? "+" : "-" } {Numeral(amount).format('0,0.00')} Pts</span>
+                            <span className="text-[10px]">{d.fromNow()} ({d.format()})</span>
+                            <div className="w-[250px]">
+                                <a href={`https://mumbai.polygonscan.com/tx/${t.transactionHash}`} target="_blank"><p className="text-[10px] truncate">{t.id}</p></a>
+                            </div>
+                        </div>
+
                     </div>
-                </div>
-                <h2 className="card-title">+320pts</h2>
-            </div>
-            <div className="m-3 p-3 flex flex-row justify-between">
-                <div className="flex flex-col">
-                    <span className="text-[20px] font-bold">Redeem</span>
-                    <span className="text-[10px]">37 mins ago (Feb-11-2023 02:38:12 PM +UTC)</span>
-                    <div className="w-[250px]">
-                        <p className="text-[10px] truncate">0x23651e64a1da00e15bbbcdeee9e87f863c57a51de581a1a67ac737ac0907f9c4</p>
-                    </div>
-                </div>
-                <h2 className="card-title">-120pts</h2>
-            </div>
+                )
+            })}
+
+
         </div>
     </div>;
 }
 
 export default function (props: React.PropsWithChildren<any>) {
+
+    const [userTier, setUserTier] = useState<Tier>(Tier.MEMBER)
+    const {address} = useAccount()
+    const balance = useBalance({
+        address: address,
+        token: config.tokenAddress,
+        enabled: true
+    })
+    const {data: currentTier} = useContractRead<any, any, BigNumber>({
+        address: config.tierAddress,
+        abi: tierABI,
+        functionName: "users",
+        args: [address || '0x']
+    })
+
+    useEffect(() => {
+        setUserTier((currentTier?.toNumber() || 0) as Tier)
+    }, [currentTier])
+
     return (
         <div className="mx-[10px]">
-            <MembershipCard/>
+            <MembershipCard
+                points={balance.data?.formatted || '-'}
+                tier={userTier}
+            />
+            <div className="mx-[10px] mt-[20px]">
+                <span className="text-[20px] font-bold">Transactions</span>
+            </div>
             <Transaction/>
         </div>
     )
