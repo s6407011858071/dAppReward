@@ -93,6 +93,7 @@ export default function (props: React.PropsWithChildren<any>) {
     })
 
     useEffect(() => {
+        console.log("currentTier",currentTier?.toNumber())
         setUserTier((currentTier?.toNumber() || 0) as Tier)
     }, [currentTier])
 
